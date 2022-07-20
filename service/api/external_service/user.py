@@ -14,7 +14,7 @@ def groups_user(user_id, params=None):
 
 
 def groups_user_followed(user_id, params=None):
-    req = requests.Request(method="GET", url=f"http://127.0.0.1:5000/api/user/{user_id}/group/followed",
+    req = requests.Request(method="GET", url=f"http://127.0.0.1:5000/api/user/{user_id}/group/follow",
                            headers=request.headers, params=params)
     with requests.Session() as session:
         r = session.send(req.prepare())

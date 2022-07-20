@@ -1,5 +1,6 @@
 import typing as t
 import flask
+import sqlalchemy as sa
 from flask_restx import Resource, Namespace
 from service.api.external_service.user import groups_user, groups_user_followed
 from service.api.models.base import db
@@ -27,7 +28,7 @@ class UserGroups(Resource):
         return groups_user(user_id, params=params)
 
 
-@api_service.route("/<int:user_id>/group/followed")
+@api_service.route("/<int:user_id>/group/follow")
 class UserGroupsFollowed(Resource):
     @api_service.doc(security="apiKey")
     @api_service.param('name', 'Введите подстроку названия группы для поиска')
@@ -52,7 +53,7 @@ class MonitoringRequest(Resource):
             db.func.json_array_elements(Request.groups).label('row')
         ).subquery()
         stmt = db.session.query(db.func.json_agg(subq.c.row).label('aggregated'))
-        result = stmt.first()
+        result: sa.engine.Row = stmt.first()
         return flask.jsonify(result[0])
 
 
