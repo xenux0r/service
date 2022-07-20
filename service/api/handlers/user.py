@@ -48,8 +48,12 @@ class MonitoringRequest(Resource):
         """
         Возвращает все когда-либо найденные с использованием метода 2 группы (сообщества).
         """
-        r: t.List[t.Dict] = Request.pull_groups()
-        return flask.jsonify(r)
+        subq = db.session.query(
+            db.func.json_array_elements(Request.groups).label('row')
+        ).subquery()
+        stmt = db.session.query(db.func.json_agg(subq.c.row).label('aggregated'))
+        result = stmt.first()
+        return flask.jsonify(result[0])
 
 
 
