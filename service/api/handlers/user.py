@@ -5,6 +5,7 @@ from flask_restx import Resource, Namespace
 from service.api.external_service.user import groups_user, groups_user_followed
 from service.api.models.base import db
 from service.api.models.user import Request
+from service.api.serializes.user import UserGroup, UserGroupSchema
 
 api_service = Namespace('service/user', description='Функциональные запросы')
 
@@ -19,11 +20,13 @@ class UserGroups(Resource):
         :param user_id: id пользователя
         """
         params = flask.request.args
-        if params.get("name"):
+        if params:
+            exp: UserGroup = UserGroupSchema().load(params)
             data = groups_user(user_id, params=params)
-            r = Request(value_name=params["name"], groups=data['groups'])
-            db.session.add(r)
-            db.session.commit()
+            if data.get('groups'):
+                r = Request(value_name=exp.name, groups=data['groups'])
+                db.session.add(r)
+                db.session.commit()
 
         return groups_user(user_id, params=params)
 
